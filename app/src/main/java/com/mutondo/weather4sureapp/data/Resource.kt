@@ -1,6 +1,9 @@
 package com.mutondo.weather4sureapp.data
 
-data class Resource<out T>(val status: ResourceStatus, val data: T?, val errorType: ResourceErrorType) {
+data class Resource<out T>(
+    val status: ResourceStatus,
+    val data: T?,
+    val errorType: ResourceErrorType) {
 
     companion object {
         fun <T> success(data: T?): Resource<T> {

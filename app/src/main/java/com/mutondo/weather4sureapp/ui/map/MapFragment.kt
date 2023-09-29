@@ -1,18 +1,28 @@
-package com.mutondo.weather4sureapp.ui
+package com.mutondo.weather4sureapp.ui.map
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.mutondo.weather4sureapp.R
 import com.mutondo.weather4sureapp.databinding.FragmentMapBinding
+import com.mutondo.weather4sureapp.ui.BaseFragment
+import com.mutondo.weather4sureapp.ui.forecast5.WeatherForecastFragment
 
-class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener {
+class MapFragment : BaseFragment(),
+    OnMapReadyCallback,
+    OnMapLongClickListener,
+    OnInfoWindowLongClickListener {
 
     private var binding: FragmentMapBinding? = null
     lateinit var map: GoogleMap
@@ -25,6 +35,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        hideActionBar()
 
         binding?.mapView?.onCreate(savedInstanceState)
         binding?.mapView?.getMapAsync(this)
@@ -50,6 +61,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener {
         map = googleMap
 
         googleMap.setOnMapLongClickListener(this)
+        googleMap.setOnInfoWindowLongClickListener(this)
 
         //TODO - Set it to current location instead
         val homeLatLng = LatLng(-26.2041, 28.0473) // Johannesburg
@@ -61,11 +73,28 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener {
         addMarker(map, latLng)
     }
 
+    override fun onInfoWindowLongClick(marker: Marker) {
+
+        val weatherForecastFragment = WeatherForecastFragment()
+        weatherForecastFragment.setData(marker.position)
+        showFragment(weatherForecastFragment, WeatherForecastFragment.TAG)
+    }
+
     private fun addMarker(map: GoogleMap, latLng: LatLng) {
         map.addMarker(
             MarkerOptions()
                 .position(latLng)
+                .title("You are here")
+                .snippet("Lat: ${latLng.latitude}; Lng: ${latLng.longitude}")
         )
+    }
+
+    private fun showFragment(fragment: Fragment, fragmentTag: String) {
+        activity?.supportFragmentManager?.commit {
+            setReorderingAllowed(true)
+            replace(R.id.fragment_container, fragment, fragmentTag)
+            addToBackStack(null)
+        }
     }
 
     companion object {
