@@ -1,7 +1,9 @@
 package com.mutondo.weather4sureapp.di
 
+import com.mutondo.weather4sureapp.data.repositories.WeatherRepositoryImpl
 import com.mutondo.weather4sureapp.data.source.remote.WeatherGateway
 import com.mutondo.weather4sureapp.data.source.remote.WeatherGatewayImpl
+import com.mutondo.weather4sureapp.domain.repositories.WeatherRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,4 +17,9 @@ abstract class AppModule {
     @Singleton
     @Binds
     abstract fun bindWeatherGateway(implementation: WeatherGatewayImpl): WeatherGateway
+
+    @Singleton
+    @Binds
+    abstract fun bindWeatherRepository(implementation: WeatherRepositoryImpl): WeatherRepository
+
 }
