@@ -1,5 +1,8 @@
 package com.mutondo.weather4sureapp.utils
 
+val Int?.orZero
+    get() = this ?: 0
+
 val Long?.orZero
     get() = this ?: 0L
 
