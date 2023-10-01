@@ -1,9 +1,12 @@
 package com.mutondo.weather4sureapp.ui.forecast5
 
+import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.model.LatLng
@@ -11,17 +14,18 @@ import com.mutondo.weather4sureapp.data.ResourceStatus
 import com.mutondo.weather4sureapp.databinding.FragmentWeatherForecastBinding
 import com.mutondo.weather4sureapp.domain.models.Forecast
 import com.mutondo.weather4sureapp.ui.BaseFragment
+import com.mutondo.weather4sureapp.ui.WeatherForecastViewModel
 import com.mutondo.weather4sureapp.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class WeatherForecastFragment : BaseFragment() {
+class WeatherForecastFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var binding: FragmentWeatherForecastBinding? = null
 
     @Inject
-    lateinit var weatherForecastViewModel: WeatherForecastViewModel
+    lateinit var viewModel: WeatherForecastViewModel
 
     private lateinit var latitude: String
     private lateinit var longitude: String
@@ -40,6 +44,18 @@ class WeatherForecastFragment : BaseFragment() {
         observeWeatherForecast()
     }
 
+    override fun onResume() {
+        super.onResume()
+        PreferenceManager.getDefaultSharedPreferences(requireContext())
+            .registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        PreferenceManager.getDefaultSharedPreferences(requireContext())
+            .unregisterOnSharedPreferenceChangeListener(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         binding = null
@@ -48,7 +64,7 @@ class WeatherForecastFragment : BaseFragment() {
     private fun observeWeatherForecast() {
         binding!!.progress.visibility = View.VISIBLE
 
-        weatherForecastViewModel.getWeatherForecast(latitude, longitude, Constants.API_KEY)
+        viewModel.getWeatherForecast(latitude, longitude, Constants.API_KEY)
             .observe(viewLifecycleOwner) { resource ->
                 when (resource.status) {
                     ResourceStatus.ERROR -> displayErrorMessage()
@@ -60,6 +76,8 @@ class WeatherForecastFragment : BaseFragment() {
     private fun observeData(forecasts: List<Forecast>) {
         binding!!.progress.visibility = View.INVISIBLE
         updateForecastView(forecasts)
+
+        viewModel.forecasts = forecasts
     }
 
     private fun updateForecastView(forecasts: List<Forecast>) {
@@ -68,7 +86,7 @@ class WeatherForecastFragment : BaseFragment() {
 
             recyclerview.layoutManager = LinearLayoutManager(context)
             recyclerview.hasFixedSize()
-            recyclerview.adapter = WeatherForecastAdapter(forecasts)
+            recyclerview.adapter = WeatherForecastAdapter(requireActivity(), forecasts)
             recyclerview.addItemDecoration(DividerItemDecoration(requireContext(), layoutManager.orientation))
         }
     }
@@ -85,5 +103,10 @@ class WeatherForecastFragment : BaseFragment() {
 
     companion object {
         const val TAG = "WeatherForecastFragment"
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        binding?.recyclerview?.adapter?.notifyDataSetChanged()
     }
 }

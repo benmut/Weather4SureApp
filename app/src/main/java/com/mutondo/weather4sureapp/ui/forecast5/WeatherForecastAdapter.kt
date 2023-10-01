@@ -2,14 +2,20 @@ package com.mutondo.weather4sureapp.ui.forecast5
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mutondo.weather4sureapp.R
 import com.mutondo.weather4sureapp.databinding.ItemForecastBinding
 import com.mutondo.weather4sureapp.domain.models.Forecast
+import com.mutondo.weather4sureapp.ui.weatherdetail.WeatherDetailsFragment
 import com.mutondo.weather4sureapp.utils.AppUtils.Companion.convertKelvinToCelsius
+import com.mutondo.weather4sureapp.utils.AppUtils.Companion.convertKelvinToFahrenheit
+import com.mutondo.weather4sureapp.utils.AppUtils.Companion.showFragment
 import com.mutondo.weather4sureapp.utils.DayTimeUtils.Companion.getDayOfWeek
 
 class WeatherForecastAdapter(
+    private val activity: FragmentActivity,
     private val forecasts: List<Forecast>
 ): RecyclerView.Adapter<WeatherForecastAdapter.WeatherForecastViewHolder>() {
 
@@ -28,10 +34,29 @@ class WeatherForecastAdapter(
         holder.bind(forecasts[position])
     }
 
-    inner class WeatherForecastViewHolder(private val binding: ItemForecastBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class WeatherForecastViewHolder(private val binding: ItemForecastBinding)
+    : RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.root.setOnClickListener {
+                val weatherDetailsFragment = WeatherDetailsFragment()
+                weatherDetailsFragment.setData(adapterPosition)
+                showFragment(activity, R.id.fragment_container, weatherDetailsFragment, WeatherDetailsFragment.TAG)
+            }
+        }
+
         fun bind(forecast: Forecast) {
+
+            val unit = PreferenceManager.getDefaultSharedPreferences(activity)
+                .getString(activity.getString(R.string.temperature_unit_key), "")
+
+            if (unit.equals(String()) || unit.equals("Celsius", true)) {
+                binding.dayTemp.text = convertKelvinToCelsius(forecast.temp)
+            } else {
+                binding.dayTemp.text = convertKelvinToFahrenheit(forecast.temp)
+            }
+
             binding.day.text = getDayOfWeek(forecast.timeStampLong)
-            binding.dayTemp.text = convertKelvinToCelsius(forecast.temperature) // TODO - allows user to choose between C & F
             binding.icon.setImageResource(setForecastIcon(forecast.description))
         }
 
