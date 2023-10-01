@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener
@@ -18,6 +16,7 @@ import com.mutondo.weather4sureapp.R
 import com.mutondo.weather4sureapp.databinding.FragmentMapBinding
 import com.mutondo.weather4sureapp.ui.BaseFragment
 import com.mutondo.weather4sureapp.ui.forecast5.WeatherForecastFragment
+import com.mutondo.weather4sureapp.utils.AppUtils.Companion.showFragment
 
 class MapFragment : BaseFragment(),
     OnMapReadyCallback,
@@ -65,7 +64,9 @@ class MapFragment : BaseFragment(),
 
         //TODO - Set it to current location instead
         val homeLatLng = LatLng(-26.2041, 28.0473) // Johannesburg
+
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, ZOOM_LEVEL))
+        map.uiSettings.isZoomControlsEnabled = true
     }
 
     override fun onMapLongClick(point: LatLng) {
@@ -77,7 +78,7 @@ class MapFragment : BaseFragment(),
 
         val weatherForecastFragment = WeatherForecastFragment()
         weatherForecastFragment.setData(marker.position)
-        showFragment(weatherForecastFragment, WeatherForecastFragment.TAG)
+        showFragment(requireActivity(), R.id.fragment_container, weatherForecastFragment, WeatherForecastFragment.TAG)
     }
 
     private fun addMarker(map: GoogleMap, latLng: LatLng) {
@@ -87,14 +88,6 @@ class MapFragment : BaseFragment(),
                 .title("You are here")
                 .snippet("Lat: ${latLng.latitude}; Lng: ${latLng.longitude}")
         )
-    }
-
-    private fun showFragment(fragment: Fragment, fragmentTag: String) {
-        activity?.supportFragmentManager?.commit {
-            setReorderingAllowed(true)
-            replace(R.id.fragment_container, fragment, fragmentTag)
-            addToBackStack(null)
-        }
     }
 
     companion object {
