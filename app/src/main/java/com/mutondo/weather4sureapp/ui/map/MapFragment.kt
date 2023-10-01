@@ -1,9 +1,11 @@
 package com.mutondo.weather4sureapp.ui.map
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener
@@ -12,6 +14,11 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.mutondo.weather4sureapp.BuildConfig
 import com.mutondo.weather4sureapp.R
 import com.mutondo.weather4sureapp.databinding.FragmentMapBinding
 import com.mutondo.weather4sureapp.ui.BaseFragment
@@ -38,7 +45,38 @@ class MapFragment : BaseFragment(),
 
         binding?.mapView?.onCreate(savedInstanceState)
         binding?.mapView?.getMapAsync(this)
+
+        initializePlaceClient()
+        setupAutocompleteSupportFragment()
     }
+
+    private fun initializePlaceClient() {
+        if (!Places.isInitialized()) {
+            Places.initialize(requireContext(), BuildConfig.MAPS_API_KEY)
+        }
+
+        Places.createClient(requireContext())
+    }
+
+    private fun setupAutocompleteSupportFragment() {
+        val autocompleteSupportFragment =
+            childFragmentManager.findFragmentById(R.id.place_autocomplete_fragment) as AutocompleteSupportFragment?
+
+        autocompleteSupportFragment?.setPlaceFields(listOf(Place.Field.NAME, Place.Field.LAT_LNG))
+        autocompleteSupportFragment?.setOnPlaceSelectedListener(placeSelectionListener)
+    }
+
+    private val placeSelectionListener: PlaceSelectionListener
+        get() = object : PlaceSelectionListener {
+            override fun onError(status: Status) {
+                Log.e(TAG, "An error occurred: $status")
+            }
+
+            override fun onPlaceSelected(place: Place) {
+                Log.i(TAG, "Place: ${place.name}, LatLng: ${place.latLng}" )
+                addMarker(map, place.latLng!!)
+            }
+        }
 
     override fun onResume() {
         super.onResume()
@@ -88,6 +126,8 @@ class MapFragment : BaseFragment(),
                 .title("You are here")
                 .snippet("Lat: ${latLng.latitude}; Lng: ${latLng.longitude}")
         )
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL))
     }
 
     companion object {
