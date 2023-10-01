@@ -1,4 +1,4 @@
-package com.mutondo.weather4sureapp.ui.forecast5
+package com.mutondo.weather4sureapp.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -14,6 +14,8 @@ import javax.inject.Singleton
 class WeatherForecastViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository
 ) : ViewModel() {
+
+    lateinit var forecasts: List<Forecast>
 
     fun getWeatherForecast(latitude: String, longitude: String, appId: String)
     : LiveData<Resource<List<Forecast>>> {
