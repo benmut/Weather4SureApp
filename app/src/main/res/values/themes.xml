@@ -3,7 +3,17 @@
     <style name="Base.Theme.Weather4SureApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="colorPrimary">@color/blue_dvt</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+
+<!--        <item name="android:textColor">@color/white</item>-->
     </style>
 
     <style name="Theme.Weather4SureApp" parent="Base.Theme.Weather4SureApp" />
+
+    <style name="Theme.Weather4SureApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Weather4SureApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

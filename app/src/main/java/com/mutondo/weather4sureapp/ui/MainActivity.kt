@@ -3,16 +3,21 @@ package com.mutondo.weather4sureapp.ui
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.commit
 import androidx.preference.PreferenceManager
+import com.google.android.material.navigation.NavigationView
 import com.mutondo.weather4sureapp.R
 import com.mutondo.weather4sureapp.databinding.ActivityMainBinding
+import com.mutondo.weather4sureapp.ui.favoritelocation.FavoriteLocationFragment
 import com.mutondo.weather4sureapp.ui.map.MapFragment
+import com.mutondo.weather4sureapp.utils.AppUtils.Companion.showFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +26,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
+        setUpNavigationDrawer()
 
         if (savedInstanceState == null) {
             val mapFragment = MapFragment()
@@ -30,6 +36,48 @@ class MainActivity : BaseActivity() {
                 add(R.id.fragment_container, mapFragment, MapFragment.TAG)
             }
         }
+    }
+
+    private fun setUpNavigationDrawer() {
+        val toggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout, binding.appBarMain.toolbar,
+            R.string.open_navigation_drawer, R.string.close_navigation_drawer
+        )
+
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        binding.navView.setNavigationItemSelectedListener(this)
+        binding.navView.bringToFront()
+    }
+
+    override fun onBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+
+            R.id.nav_map -> {
+                val mapFragment = MapFragment()
+                showFragment(this, R.id.fragment_container, mapFragment, MapFragment.TAG)
+            }
+
+            R.id.nav_favorites -> {
+                var favoriteLocationFragment = supportFragmentManager.findFragmentByTag(FavoriteLocationFragment.TAG)
+                if(favoriteLocationFragment == null) {
+                    favoriteLocationFragment = FavoriteLocationFragment()
+                }
+                showFragment(this, R.id.fragment_container, favoriteLocationFragment, FavoriteLocationFragment.TAG)
+            }
+        }
+
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
