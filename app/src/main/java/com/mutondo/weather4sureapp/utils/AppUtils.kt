@@ -1,5 +1,6 @@
 package com.mutondo.weather4sureapp.utils
 
+import android.location.LocationManager
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -23,6 +24,14 @@ class AppUtils {
                 replace(containerViewId, fragment, tag)
                 addToBackStack(null)
             }
+        }
+
+        fun isGpsEnabled(locationManager: LocationManager): Boolean {
+            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        }
+
+        fun isNetworkEnabled(locationManager: LocationManager): Boolean {
+            return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         }
     }
 }

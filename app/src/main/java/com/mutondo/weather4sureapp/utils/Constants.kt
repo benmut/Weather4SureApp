@@ -6,4 +6,5 @@ object Constants {
     const val API_KEY = "53f9d8e4213222cf517d86dc406d67fc"
 
     const val NETWORK_TIMEOUT_SECONDS = 30L
+    const val LOCATION_REQUEST_CODE = 100
 }

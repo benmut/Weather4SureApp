@@ -30,6 +30,8 @@ It is better to test it on an emulator to better test different locations' weath
 # Improvement
 - Fine tune the UI design;
 - Zoom map camera to user's current location instead the one specified in code;
+- Create a custom info window with an image button instead of doing a long click;
+- Implement reverse geolocation;
 - Check for internet connection before fetching data;
 - Create a file to centralise the versions of all the libraries used;
 - Make the App multi-module with each layer in its own module, etc.
