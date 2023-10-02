@@ -8,3 +8,6 @@ val Long?.orZero
 
 val Float?.orZero: Float
     get() = this ?: 0f
+
+val Double?.orZero: Double
+    get() = this ?: 0.0
