@@ -50,7 +50,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        hideActionBar()
+
+        setActionBarTitle("Map")
 
         binding?.mapView?.onCreate(savedInstanceState)
         binding?.mapView?.getMapAsync(this)
@@ -91,8 +92,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
 
     private fun saveFavoriteLocation(name: String, latitude: Double, longitude: Double) {
         lifecycleScope.launch {
-
-        val favoriteLocation = FavoriteLocation(name, latitude, longitude)
+            val favoriteLocation = FavoriteLocation(name, latitude, longitude)
             viewModel.saveFavoriteLocation(favoriteLocation)
         }
     }

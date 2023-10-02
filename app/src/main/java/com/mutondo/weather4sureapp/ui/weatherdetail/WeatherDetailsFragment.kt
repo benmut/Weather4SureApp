@@ -35,7 +35,7 @@ class WeatherDetailsFragment : BaseFragment(), OnSharedPreferenceChangeListener 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        hideActionBar()
+        setActionBarTitle(String())
         bindViews()
     }
 

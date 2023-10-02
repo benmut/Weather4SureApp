@@ -30,7 +30,6 @@ class FavoriteLocationFragment :BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        showActionBar()
         setActionBarTitle("Favorite Locations")
         observeFavoriteLocations()
     }

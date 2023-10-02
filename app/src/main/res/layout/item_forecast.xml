@@ -23,7 +23,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="20sp"
-            tools:textColor="@android:color/tab_indicator_text"
+            android:textColor="#5d5d5d"
             tools:text="Wednesday"/>
 
         <ImageView
@@ -45,7 +45,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:textSize="20sp"
-            tools:textColor="@android:color/tab_indicator_text"
+            android:textColor="#5d5d5d"
             tools:text="20"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

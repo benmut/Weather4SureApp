@@ -39,7 +39,6 @@ class WeatherForecastFragment : BaseFragment(), SharedPreferences.OnSharedPrefer
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        showActionBar()
         setActionBarTitle("Weather Forecast")
         observeWeatherForecast()
     }
