@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mutondo.weather4sureapp.databinding.FragmentFavoriteLocationBinding
 import com.mutondo.weather4sureapp.domain.models.FavoriteLocation
 import com.mutondo.weather4sureapp.ui.BaseFragment
-import com.mutondo.weather4sureapp.ui.FavoriteLocationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

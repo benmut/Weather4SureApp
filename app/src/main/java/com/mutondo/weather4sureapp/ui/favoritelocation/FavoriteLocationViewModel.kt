@@ -1,4 +1,4 @@
-package com.mutondo.weather4sureapp.ui
+package com.mutondo.weather4sureapp.ui.favoritelocation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +12,9 @@ import javax.inject.Singleton
 class FavoriteLocationViewModel @Inject constructor(
     private val repository: FavoriteLocationRepository
 ) : ViewModel() {
+
+    var currentUserLatitude: Double? = null
+    var currentUserLongitude: Double? = null
 
     fun getFavoriteLocations(): LiveData<List<FavoriteLocation>> {
         return repository.getAllFavorites()

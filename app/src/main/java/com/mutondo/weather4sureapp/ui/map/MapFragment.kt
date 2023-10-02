@@ -1,5 +1,11 @@
 package com.mutondo.weather4sureapp.ui.map
 
+import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,11 +26,12 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.mutondo.weather4sureapp.BuildConfig
+import com.mutondo.weather4sureapp.LocationService
 import com.mutondo.weather4sureapp.R
 import com.mutondo.weather4sureapp.databinding.FragmentMapBinding
 import com.mutondo.weather4sureapp.domain.models.FavoriteLocation
 import com.mutondo.weather4sureapp.ui.BaseFragment
-import com.mutondo.weather4sureapp.ui.FavoriteLocationViewModel
+import com.mutondo.weather4sureapp.ui.favoritelocation.FavoriteLocationViewModel
 import com.mutondo.weather4sureapp.ui.forecast5.WeatherForecastFragment
 import com.mutondo.weather4sureapp.utils.AppUtils.Companion.showFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +45,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
     lateinit var map: GoogleMap
 
     private val markers = mutableListOf<Marker>()
+    private lateinit var receiver: BroadcastReceiver
 
     @Inject
     lateinit var viewModel: FavoriteLocationViewModel
@@ -100,6 +108,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
     override fun onResume() {
         super.onResume()
         binding?.mapView?.onResume()
+
+        val filter = IntentFilter(activity?.packageName.toString() + "MY_LOCATION")
+        receiver = MyBroadcastReceiver()
+        activity?.registerReceiver(receiver, filter)
     }
 
     override fun onPause() {
@@ -109,6 +121,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
 
     override fun onDestroy() {
         super.onDestroy()
+        context?.unregisterReceiver(receiver)
+
         binding?.mapView?.onDestroy()
         binding = null
     }
@@ -119,11 +133,17 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
         googleMap.setOnMapLongClickListener(this)
         googleMap.setOnInfoWindowLongClickListener(this)
 
-        //TODO - Set it to current location instead
-        val homeLatLng = LatLng(-26.2041, 28.0473) // Johannesburg
-
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, ZOOM_LEVEL))
+        if(requireContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
+            map.isMyLocationEnabled = true
+        }
         map.uiSettings.isZoomControlsEnabled = true
+
+        if(viewModel.currentUserLatitude != null && viewModel.currentUserLongitude != null) {
+            val currentLatLng = LatLng(viewModel.currentUserLatitude!!, viewModel.currentUserLongitude!!)
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, ZOOM_LEVEL))
+        }
+
     }
 
     override fun onMapLongClick(point: LatLng) {
@@ -154,6 +174,21 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
     private fun removeMarkers(list: MutableList<Marker>) {
         for (marker: Marker in list) {
             marker.remove()
+        }
+    }
+
+    inner class MyBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+            if(intent?.action == activity?.packageName.toString() + "MY_LOCATION") {
+
+                // Get current Lat & Lng or default to Jhb
+                viewModel.currentUserLatitude = intent.extras?.getDouble(LocationService.LAT_KEY, -26.2041)
+                viewModel.currentUserLongitude = intent.extras?.getDouble(LocationService.LNG_KEY, 28.0473)
+
+                val currentLatLng = LatLng(viewModel.currentUserLatitude!!, viewModel.currentUserLongitude!!)
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, ZOOM_LEVEL))
+            }
         }
     }
 
