@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,8 +29,10 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.mutondo.weather4sureapp.BuildConfig
 import com.mutondo.weather4sureapp.LocationService
 import com.mutondo.weather4sureapp.R
+import com.mutondo.weather4sureapp.data.ResourceStatus
 import com.mutondo.weather4sureapp.databinding.FragmentMapBinding
 import com.mutondo.weather4sureapp.domain.models.FavoriteLocation
+import com.mutondo.weather4sureapp.domain.models.Geocode
 import com.mutondo.weather4sureapp.ui.BaseFragment
 import com.mutondo.weather4sureapp.ui.favoritelocation.FavoriteLocationViewModel
 import com.mutondo.weather4sureapp.ui.forecast5.WeatherForecastFragment
@@ -94,15 +97,51 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
                 Log.i(TAG, "Place: ${place.name}, LatLng: ${place.latLng}")
 
                 addMarker(map, place.latLng!!)?.let { markers.add(it) }
-                saveFavoriteLocation(place.name!!, place.latLng!!.latitude, place.latLng!!.longitude)
+                observeGeolocation(place.latLng!!.latitude, place.latLng!!.longitude)
             }
         }
 
     private fun saveFavoriteLocation(name: String, latitude: Double, longitude: Double) {
         lifecycleScope.launch {
-            val favoriteLocation = FavoriteLocation(name, latitude, longitude)
+//            val favoriteLocation = FavoriteLocation(name, latitude, longitude)
+//            viewModel.saveFavoriteLocation(favoriteLocation)
+
+
+        }
+    }
+
+    private fun observeGeolocation(latitude: Double, longitude: Double) {
+        viewModel.getGeocodeData("${latitude},${longitude}")
+            .observe(viewLifecycleOwner) { resource ->
+                when (resource.status) {
+                    ResourceStatus.ERROR -> displayErrorMessage()
+                    ResourceStatus.SUCCESS -> resource.data?.let {
+                        saveGeolocation(it)
+                    }
+                }
+        }
+    }
+
+    private fun saveGeolocation(geoLocations: List<Geocode>) {
+        lifecycleScope.launch {
+
+            val locationName: String = if(geoLocations[0].types.contains("street_number")) {
+                geoLocations[0].formattedAddress
+            } else {
+                geoLocations[0].longName
+            }
+
+            val favoriteLocation = FavoriteLocation(
+                name = locationName,
+                latitude = geoLocations[0].latitude,
+                longitude = geoLocations[0].longitude
+            )
             viewModel.saveFavoriteLocation(favoriteLocation)
         }
+    }
+
+    private fun displayErrorMessage() {
+        Toast.makeText(requireContext(), "Geolocation not be found", Toast.LENGTH_LONG).show()
     }
 
     override fun onResume() {
