@@ -101,15 +101,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
             }
         }
 
-    private fun saveFavoriteLocation(name: String, latitude: Double, longitude: Double) {
-        lifecycleScope.launch {
-//            val favoriteLocation = FavoriteLocation(name, latitude, longitude)
-//            viewModel.saveFavoriteLocation(favoriteLocation)
-
-
-        }
-    }
-
     private fun observeGeolocation(latitude: Double, longitude: Double) {
         viewModel.getGeocodeData("${latitude},${longitude}")
             .observe(viewLifecycleOwner) { resource ->
