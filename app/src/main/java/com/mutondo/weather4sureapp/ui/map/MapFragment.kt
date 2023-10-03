@@ -91,9 +91,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
             }
 
             override fun onPlaceSelected(place: Place) {
-                Log.i(TAG, "Place: ${place.name}, LatLng: ${place.latLng}" )
-                addMarker(map, place.latLng!!)
+                Log.i(TAG, "Place: ${place.name}, LatLng: ${place.latLng}")
 
+                addMarker(map, place.latLng!!)?.let { markers.add(it) }
                 saveFavoriteLocation(place.name!!, place.latLng!!.latitude, place.latLng!!.longitude)
             }
         }
@@ -175,6 +175,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
         for (marker: Marker in list) {
             marker.remove()
         }
+        markers.clear()
     }
 
     inner class MyBroadcastReceiver : BroadcastReceiver() {
@@ -186,8 +187,14 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, OnMapLongClickListener, 
                 viewModel.currentUserLatitude = intent.extras?.getDouble(LocationService.LAT_KEY, -26.2041)
                 viewModel.currentUserLongitude = intent.extras?.getDouble(LocationService.LNG_KEY, 28.0473)
 
-                val currentLatLng = LatLng(viewModel.currentUserLatitude!!, viewModel.currentUserLongitude!!)
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, ZOOM_LEVEL))
+                if(markers.isNotEmpty()) {
+                    val markerLatLng = LatLng(markers[markers.lastIndex].position.latitude, markers[markers.lastIndex].position.longitude)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng, ZOOM_LEVEL))
+
+                } else {
+                    val currentLatLng = LatLng(viewModel.currentUserLatitude!!, viewModel.currentUserLongitude!!)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, ZOOM_LEVEL))
+                }
             }
         }
     }
